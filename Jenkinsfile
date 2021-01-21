@@ -7,6 +7,12 @@ pipeline {
       }
     }
 
+    stage('Checkout code') {
+        steps {
+            checkout scm
+        }
+    }
+
     stage('Build') {
       steps {
         withGradle() {
