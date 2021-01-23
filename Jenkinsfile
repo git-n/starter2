@@ -1,32 +1,40 @@
 pipeline {
-  agent any
-  stages {
-    stage('Hello') {
-      steps {
-        echo 'Hello'
-      }
-    }
+    agent any
 
-    stage('Checkout code') {
-        steps {
-            checkout scm
+    stages {
+        stage('Parallel Stage') {
+            parallel {
+                stage('User Info') {
+                    steps {
+                        sh 'id'
+                    }
+                }
+                stage('Compile') {
+                    steps {
+                          sh './gradlew assemble'
+                    }
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                  sh './gradlew clean test'
+            }
+            post {
+                always {
+                    junit '**/build/test-results/test/TEST-*.xml'
+                }
+            }
+        }
+        stage('Code Analysis') {
+            steps {
+                sh './gradlew sonarqube'
+            }
+        }
+        stage('Bye') {
+            steps {
+                echo 'Bye World'
+            }
         }
     }
-
-    stage('Build') {
-      steps {
-        withGradle() {
-          sh './gradlew build'
-        }
-
-      }
-    }
-
-    stage('Bye') {
-      steps {
-        echo 'Bye'
-      }
-    }
-
-  }
 }
